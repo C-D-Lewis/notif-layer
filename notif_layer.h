@@ -18,7 +18,9 @@ typedef struct {
   PropertyAnimation *content_prop_anim;
 } NotifLayer;
 
-NotifLayer* notif_layer_create(Window *parent);
+NotifLayer* notif_layer_create();
+
+void notif_layer_add_to_window(NotifLayer *this, Window *parent);
 
 void notif_layer_destroy(NotifLayer *this);
 

@@ -4,7 +4,7 @@ static void update_proc(Layer *layer, GContext *ctx) {
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 }
 
-NotifLayer* notif_layer_create(Window *parent) {
+NotifLayer* notif_layer_create() {
   NotifLayer *this = (NotifLayer*)malloc(sizeof(NotifLayer));
   this->bg_layer = layer_create(GRect(0, -NOTIF_LAYER_DEFAULT_HEIGHT, 144, NOTIF_LAYER_DEFAULT_HEIGHT));
   layer_set_update_proc(this->bg_layer, update_proc);
@@ -13,11 +13,13 @@ NotifLayer* notif_layer_create(Window *parent) {
   text_layer_set_background_color(this->content_layer, GColorClear);
   text_layer_set_overflow_mode(this->content_layer, GTextOverflowModeWordWrap);
 
+  return this;
+}
+
+void notif_layer_add_to_window(NotifLayer *this, Window *parent) {
   Layer *parent_layer = window_get_root_layer(parent);
   layer_add_child(parent_layer, this->bg_layer);
   layer_add_child(parent_layer, text_layer_get_layer(this->content_layer));
-
-  return this;
 }
 
 static void destroy_animations(NotifLayer *this) {
