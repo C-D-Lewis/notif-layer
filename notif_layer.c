@@ -12,6 +12,7 @@ NotifLayer* notif_layer_create() {
   text_layer_set_text_color(this->content_layer, GColorWhite);
   text_layer_set_background_color(this->content_layer, GColorClear);
   text_layer_set_overflow_mode(this->content_layer, GTextOverflowModeWordWrap);
+  this->visible = false;
 
   return this;
 }
@@ -37,6 +38,7 @@ static void destroy_animations(NotifLayer *this) {
 #endif
     this->bg_prop_anim = NULL;
   }
+  this->visible = false;
 }
 
 void notif_layer_destroy(NotifLayer *this) {
@@ -82,31 +84,35 @@ static void show_stopped_handler(Animation *animation, bool finished, void *cont
 }
 
 void notif_layer_show(NotifLayer *this, char *message) {
-  Layer *bg_layer = this->bg_layer;
-  Layer *content_layer = text_layer_get_layer(this->content_layer);
+  if(!this->visible) {
+    this->visible = true;
+    
+    Layer *bg_layer = this->bg_layer;
+    Layer *content_layer = text_layer_get_layer(this->content_layer);
 
-  snprintf(this->buffer, NOTIF_LAYER_MAX_LENGTH, "%s", message);
-  text_layer_set_text(this->content_layer, this->buffer);
+    snprintf(this->buffer, NOTIF_LAYER_MAX_LENGTH, "%s", message);
+    text_layer_set_text(this->content_layer, this->buffer);
 
-  // Reset
-  destroy_animations(this);
-  layer_set_frame(content_layer, GRect(0, -NOTIF_LAYER_DEFAULT_HEIGHT, 144, NOTIF_LAYER_DEFAULT_HEIGHT));
-  layer_set_frame(bg_layer, GRect(0, -NOTIF_LAYER_DEFAULT_HEIGHT, 144, NOTIF_LAYER_DEFAULT_HEIGHT));
+    // Reset
+    destroy_animations(this);
+    layer_set_frame(content_layer, GRect(0, -NOTIF_LAYER_DEFAULT_HEIGHT, 144, NOTIF_LAYER_DEFAULT_HEIGHT));
+    layer_set_frame(bg_layer, GRect(0, -NOTIF_LAYER_DEFAULT_HEIGHT, 144, NOTIF_LAYER_DEFAULT_HEIGHT));
 
-  // Show Animation
-  GRect start = layer_get_frame(bg_layer);
-  GRect finish = GRect(0, 0, 144, NOTIF_LAYER_DEFAULT_HEIGHT);
-  this->bg_prop_anim = property_animation_create_layer_frame(bg_layer, &start, &finish);
-  Animation *bg_anim = property_animation_get_animation(this->bg_prop_anim);
-  animation_set_handlers(bg_anim, (AnimationHandlers) {
-    .stopped = show_stopped_handler
-  }, this);
-  animation_schedule(bg_anim);
+    // Show Animation
+    GRect start = layer_get_frame(bg_layer);
+    GRect finish = GRect(0, 0, 144, NOTIF_LAYER_DEFAULT_HEIGHT);
+    this->bg_prop_anim = property_animation_create_layer_frame(bg_layer, &start, &finish);
+    Animation *bg_anim = property_animation_get_animation(this->bg_prop_anim);
+    animation_set_handlers(bg_anim, (AnimationHandlers) {
+      .stopped = show_stopped_handler
+    }, this);
+    animation_schedule(bg_anim);
 
-  start = layer_get_frame(content_layer);
-  this->content_prop_anim = property_animation_create_layer_frame(content_layer, &start, &finish);
-  Animation *content_anim = property_animation_get_animation(this->content_prop_anim);
-  animation_schedule(content_anim);
+    start = layer_get_frame(content_layer);
+    this->content_prop_anim = property_animation_create_layer_frame(content_layer, &start, &finish);
+    Animation *content_anim = property_animation_get_animation(this->content_prop_anim);
+    animation_schedule(content_anim);
+  }
 }
 
 static void hide_stopped_handler(Animation *animation, bool finished, void *context) {

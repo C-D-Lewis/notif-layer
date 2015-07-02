@@ -16,6 +16,7 @@ typedef struct {
   char buffer[NOTIF_LAYER_MAX_LENGTH];
   PropertyAnimation *bg_prop_anim;
   PropertyAnimation *content_prop_anim;
+  bool visible;
 } NotifLayer;
 
 NotifLayer* notif_layer_create();
