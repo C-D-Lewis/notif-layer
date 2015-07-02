@@ -35,10 +35,9 @@ static void destroy_animations(NotifLayer *this) {
     animation_unschedule((Animation*)this->bg_prop_anim);
 #ifdef PBL_SDK_2
     property_animation_destroy(this->bg_prop_anim);
-#endif
     this->bg_prop_anim = NULL;
+#endif
   }
-  this->visible = false;
 }
 
 void notif_layer_destroy(NotifLayer *this) {
@@ -51,7 +50,6 @@ void notif_layer_destroy(NotifLayer *this) {
 
 static void scroll_stopped_handler(Animation *animation, bool finished, void *context) {
   NotifLayer *this = (NotifLayer*)context;
-  destroy_animations(this);
 
   // Hide
   notif_layer_hide(this);
@@ -59,7 +57,6 @@ static void scroll_stopped_handler(Animation *animation, bool finished, void *co
 
 static void show_stopped_handler(Animation *animation, bool finished, void *context) {
   NotifLayer *this = (NotifLayer*)context;
-  destroy_animations(this);
 
   Layer *content_layer = text_layer_get_layer(this->content_layer);
 
@@ -118,11 +115,11 @@ void notif_layer_show(NotifLayer *this, char *message) {
 static void hide_stopped_handler(Animation *animation, bool finished, void *context) {
   NotifLayer *this = (NotifLayer*)context;
   destroy_animations(this);
+
+  this->visible = false;
 }
 
 void notif_layer_hide(NotifLayer *this) {
-  destroy_animations(this);
-
   Layer *bg_layer = this->bg_layer;
   Layer *content_layer = text_layer_get_layer(this->content_layer);
 
